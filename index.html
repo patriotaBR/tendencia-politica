@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Enquete Politica</title>
+<title>Quiz de afinidade política</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -139,21 +139,21 @@
         justify-content: center;
         align-items: center;
         font-weight: 800;
-        font-size: 64px;
+        font-size: 26px;
         border-radius: 20px;
         box-shadow: 0 8px 0 rgba(0,0,0,0.25), 0 12px 20px rgba(0, 0, 0, 0.2);
     }
 
     .contra-numero {
-        background: #ef4444;
-        color: #fef08a;
-        border: 2px solid #dc2626;
+        background: #6366f1;
+        color: #ffffff;
+        border: 2px solid #4f46e5;
     }
 
     .favor-numero {
-        background: #10b981;
-        color: #fef08a;
-        border: 2px solid #059669;
+        background: #f59e0b;
+        color: #ffffff;
+        border: 2px solid #d97706;
     }
 
     .pergunta {
@@ -278,7 +278,10 @@
     .oculto {
         display: none !important;
     }
-</style>
+
+    .aviso { font-size: 12px; line-height: 1.4; color: #334155; margin: 14px 8px 0; }
+    .placar { width: auto; min-width: 110px; padding: 0 22px; }
+    </style>
 </head>
 <body>
 
@@ -293,13 +296,14 @@
                 </div>
             </div>
         </div>
+        <p class="aviso">Quiz de afinidade com fins de reflexão. Não é pesquisa eleitoral, não mede intenção de voto e não registra suas respostas.</p>
         <button id="comecar">COMEÇAR</button>
     </div>
 
     <!-- CONTEÚDO DA ENQUETE -->
     <div class="resultado oculto" id="resultado">
-        <div class="placar contra-numero oculto" id="numero13">13</div>
-        <div class="placar favor-numero oculto" id="numero22">22</div>
+        <div class="placar contra-numero oculto" id="numero13">Progressista</div>
+        <div class="placar favor-numero oculto" id="numero22">Conservador</div>
     </div>
 
     <div class="pergunta oculto" id="pergunta"></div>
@@ -322,143 +326,40 @@
             <canvas id="graficoPizza"></canvas>
         </div>
 
-        <button id="reiniciar">NOVA ENQUETE</button>
+        <p class="aviso">Resultado indicativo e sem valor de pesquisa. Perguntas simplificam posições complexas.</p>
+        <button id="reiniciar">REFAZER QUIZ</button>
     </div>
 
 </div>
 
 <script>
     const perguntas = [
-        {
-            texto: "Endurecimento penal, fortalecimento policial e maior poder de atuação das forças de segurança.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Porte de arma para as pessoas de bem.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Saidinha de presidiários das cadeias.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Fortalecimento do Agronegócio Brasileiro.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Redução dos Impostos.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "MST invadindo e tomando propriedades particulares.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Abordagem de gênero e incentivo a temas relacionados a sexualidade nas escolas.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Classificação de facções criminosas como PCC e CV como Grupos Terroristas.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Redução da maioridade penal, especialmente para crimes graves.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Proteção da vida desde a concepção e oposição à ampliação da legalização do aborto.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Defesa da família tradicional, de valores judaico-cristãos e da moralidade conservadora.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Voto Impresso auditável.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Maior aproximação política com Israel.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Permitir que pessoas \"TRANS\" utilizem o banheiro do sexo biológico oposto ao seu.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Manutenção dos sindicatos, com contribuições obrigatórias para os trabalhadores.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Descriminalização do usuário de drogas e políticas de redução de penas aos traficantes.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "A propriedade privada deve ter função social e maior regulação, podendo haver desapropriação para uso comum.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "A economia deve dar maior ênfase a iniciativa privada e a redução da intervenção estatal.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "O governo deve dar ênfase em controlar gastos e ter responsabilidade fiscal.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Fortalecimento do mercado de trabalho e o equilíbrio fiscal em vez da expansão da assistência social direta (Bolsa Família).",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Maior financiamento e participação do Estado (com dinheiro público) na cultura.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Aproximação política com governos comunistas como China e Rússia.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Indicar para os cargos de Ministros pessoas com qualificação técnica na área e redução dos Ministérios, reduzindo os gastos públicos.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Condenação de 3 anos de prisão a uma mãe de família por escrever com batom em uma estátua uma frase dita por um ministro do STF. OBS: A pena de pichação no Brasil é de 3 a 12 meses.",
-            favor: "13",
-            contra: "22"
-        },
-        {
-            texto: "Ampliação do projeto escola cívico militar.",
-            favor: "22",
-            contra: "13"
-        },
-        {
-            texto: "Ter liberdade de expressar suas opiniões nas redes sociais, desde que não constituam crime.",
-            favor: "22",
-            contra: "13"
-        }
+        { texto: "Endurecer as penas e ampliar o poder de atuação das forças de segurança.", favor: "C", contra: "P" },
+        { texto: "Facilitar o porte de arma para cidadãos sem antecedentes criminais.", favor: "C", contra: "P" },
+        { texto: "Restabelecer a saída temporária (“saidinha”) de presos em regime semiaberto.", favor: "P", contra: "C" },
+        { texto: "Direcionar mais crédito público à agricultura familiar do que ao agronegócio de exportação.", favor: "P", contra: "C" },
+        { texto: "Reduzir a carga de impostos, mesmo que isso diminua a arrecadação para serviços públicos.", favor: "C", contra: "P" },
+        { texto: "Ampliar a reforma agrária, com desapropriação de terras que não cumprem sua função social, como prevê a Constituição.", favor: "P", contra: "C" },
+        { texto: "Incluir educação sexual e discussão sobre diversidade de gênero no currículo escolar.", favor: "P", contra: "C" },
+        { texto: "Classificar facções criminosas como PCC e CV como organizações terroristas.", favor: "C", contra: "P" },
+        { texto: "Reduzir a maioridade penal para crimes graves.", favor: "C", contra: "P" },
+        { texto: "Ampliar o acesso legal ao aborto além dos casos já previstos em lei.", favor: "P", contra: "C" },
+        { texto: "Dar maior peso a valores religiosos e à família tradicional na formulação de políticas públicas.", favor: "C", contra: "P" },
+        { texto: "Adotar o comprovante impresso do voto, além da urna eletrônica.", favor: "C", contra: "P" },
+        { texto: "Aproximar a diplomacia brasileira de Estados Unidos e Israel.", favor: "C", contra: "P" },
+        { texto: "Permitir que pessoas trans usem o banheiro de acordo com sua identidade de gênero.", favor: "P", contra: "C" },
+        { texto: "Retomar a contribuição sindical obrigatória, extinta em 2017.", favor: "P", contra: "C" },
+        { texto: "Descriminalizar o porte de drogas para uso pessoal, tratando o usuário como caso de saúde.", favor: "P", contra: "C" },
+        { texto: "Criar imposto sobre grandes fortunas para financiar políticas sociais.", favor: "P", contra: "C" },
+        { texto: "Reduzir o tamanho do Estado, com mais privatizações e menos intervenção na economia.", favor: "C", contra: "P" },
+        { texto: "Priorizar o equilíbrio fiscal e o corte de gastos, mesmo que isso reduza investimentos públicos.", favor: "C", contra: "P" },
+        { texto: "Ampliar programas de transferência de renda, como o Bolsa Família.", favor: "P", contra: "C" },
+        { texto: "Aumentar o financiamento público da cultura (leis de incentivo e fundos).", favor: "P", contra: "C" },
+        { texto: "Ampliar a parceria política e comercial com China e países do BRICS.", favor: "P", contra: "C" },
+        { texto: "Reduzir o número de ministérios para cortar gastos públicos.", favor: "C", contra: "P" },
+        { texto: "Débora Rodrigues dos Santos, que escreveu com batom na estátua “A Justiça” durante o 8 de janeiro, foi condenada pelo STF a 14 anos de prisão (decisão de 2025). Desse total, 3 anos correspondem aos crimes de dano qualificado e deterioração de patrimônio tombado; o restante, a golpe de Estado, abolição violenta do Estado Democrático de Direito e associação criminosa armada. Você concorda com a condenação?", favor: "P", contra: "C" },
+        { texto: "Ampliar o modelo de escolas cívico-militares.", favor: "C", contra: "P" },
+        { texto: "Limitar a remoção judicial de conteúdos nas redes sociais, priorizando a liberdade de expressão.", favor: "C", contra: "P" }
     ];
 
     let perguntaAtual = 0;
@@ -481,6 +382,7 @@
 
     function atualizarExibicaoPergunta() {
         perguntaEl.textContent = perguntas[perguntaAtual].texto;
+        perguntaEl.style.fontSize = perguntas[perguntaAtual].texto.length > 250 ? "16px" : "";
         numPaginaEl.textContent = `${perguntaAtual + 1} / ${perguntas.length}`;
         
         const respostaAtual = respostasUsuario[perguntaAtual];
@@ -501,7 +403,7 @@
     }
 
     function exibirNumero(valor) {
-        if (valor === "22") {
+        if (valor === "C") {
             num22.classList.remove("oculto");
             num13.classList.add("oculto");
         } else {
@@ -544,8 +446,8 @@
             respostasUsuario.forEach((resp, idx) => {
                 if (resp) {
                     const numero = perguntas[idx][resp];
-                    if (numero === "13") total13++;
-                    if (numero === "22") total22++;
+                    if (numero === "P") total13++;
+                    if (numero === "C") total22++;
                 }
             });
 
@@ -574,11 +476,11 @@
         meuGrafico = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['13', '22'],
+                labels: ['Progressista', 'Conservador'],
                 datasets: [{
                     data: [qtd13, qtd22],
-                    backgroundColor: ['#ef4444', '#10b981'],
-                    borderColor: ['#dc2626', '#059669'],
+                    backgroundColor: ['#6366f1', '#f59e0b'],
+                    borderColor: ['#4f46e5', '#d97706'],
                     borderWidth: 2
                 }]
             },
