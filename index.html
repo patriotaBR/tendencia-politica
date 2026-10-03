@@ -1,12 +1,629 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tendência Política</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Enquete Politica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<!-- CDN do Chart.js para o Gráfico de Pizza -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Plugin do Chart.js para exibir os valores dentro das fatias -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body {
+        width: 100%;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        background: #d8ef68;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: #1e293b;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 420px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        background: #d8ef68;
+        position: relative;
+        text-align: center;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+    }
+
+    /* --- CAPA --- */
+    .capa {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        height: 100%;
+        flex-grow: 1;
+    }
+
+    .moldura-brasil {
+        width: 100%;
+        background: linear-gradient(135deg, #008744 0%, #005c2e 100%);
+        padding: 10px;
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(0, 135, 68, 0.25);
+    }
+
+    .moldura-interna {
+        background: linear-gradient(135deg, #ffcc00 0%, #ffa800 100%);
+        padding: 8px;
+        border-radius: 12px;
+    }
+
+    .capa-box-titulo {
+        background: #d8ef68;
+        padding: 30px 12px;
+        border-radius: 8px;
+    }
+
+    .capa-titulo {
+        font-size: 40px;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.15;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+    }
+
+    /* --- BOTÕES --- */
+    button {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* Botão COMEÇAR */
+    #comecar {
+        width: 85%;
+        margin-top: auto;
+        margin-bottom: 20px;
+        background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        padding: 16px 20px;
+        border: 1px solid #1e40af;
+        border-radius: 14px;
+        box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #comecar:active {
+        transform: translateY(4px);
+        box-shadow: 0 2px 0 #1e3a8a, 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* --- ENQUETE --- */
+    .resultado {
+        height: 130px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .placar {
+        width: 110px;
+        height: 110px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 800;
+        font-size: 64px;
+        border-radius: 20px;
+        box-shadow: 0 8px 0 rgba(0,0,0,0.25), 0 12px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .contra-numero {
+        background: #ef4444;
+        color: #fef08a;
+        border: 2px solid #dc2626;
+    }
+
+    .favor-numero {
+        background: #10b981;
+        color: #fef08a;
+        border: 2px solid #059669;
+    }
+
+    .pergunta {
+        min-height: 140px;
+        padding: 10px 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.35;
+        color: #0f172a;
+    }
+
+    /* Contentor dos botões de resposta */
+    .botoes {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+    }
+
+    /* Botões A FAVOR / CONTRA */
+    .botoes button {
+        width: 85%;
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+        color: #1e293b;
+        border: 2px solid #cbd5e1;
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 5px 0 #94a3b8, 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .botoes button:active {
+        transform: translateY(3px);
+        box-shadow: 0 2px 0 #94a3b8, 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Destaque para o botão selecionado */
+    .botoes button.ativo {
+        background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+        color: #ffffff;
+        border-color: #0369a1;
+        box-shadow: 0 5px 0 #075985, 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Botão PRÓXIMA */
+    #proximo {
+        width: 85%;
+        margin: 15px auto 10px auto;
+        background: linear-gradient(180deg, #334155 0%, #0f172a 100%);
+        color: #ffffff;
+        border: 1px solid #020617;
+        border-radius: 14px;
+        font-size: 24px;
+        font-weight: 700;
+        padding: 14px;
+        box-shadow: 0 5px 0 #020617, 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #proximo:active {
+        transform: translateY(3px);
+        box-shadow: 0 2px 0 #020617, 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* --- NUMERAÇÃO DE PÁGINA (CANTO INFERIOR ESQUERDO) --- */
+    .num-pagina {
+        position: absolute;
+        bottom: 8px;
+        left: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #475569;
+        opacity: 0.8;
+    }
+
+    /* --- RESULTADO FINAL (GRÁFICO PIZZA) --- */
+    .total {
+        display: none;
+        padding: 10px 0;
+        height: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .total-titulo {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .chart-container {
+        position: relative;
+        width: 100%;
+        max-width: 280px;
+        height: 280px;
+        margin: 10px auto;
+    }
+
+    #reiniciar {
+        width: 85%;
+        margin: 10px auto 0 auto;
+        background: linear-gradient(180deg, #334155 0%, #0f172a 100%);
+        color: white;
+        border: 1px solid #020617;
+        border-radius: 14px;
+        font-size: 24px;
+        font-weight: 700;
+        padding: 14px;
+        box-shadow: 0 5px 0 #020617, 0 8px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #reiniciar:active {
+        transform: translateY(3px);
+        box-shadow: 0 2px 0 #020617, 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .oculto {
+        display: none !important;
+    }
+</style>
 </head>
 <body>
-    <h1>Tendência Política</h1>
-    <p>O site está a funcionar corretamente!</p>
+
+<div class="app">
+
+    <!-- TELA DE CAPA -->
+    <div class="capa" id="capa">
+        <div class="moldura-brasil">
+            <div class="moldura-interna">
+                <div class="capa-box-titulo">
+                    <h1 class="capa-titulo">Tendência<br>política</h1>
+                </div>
+            </div>
+        </div>
+        <button id="comecar">COMEÇAR</button>
+    </div>
+
+    <!-- CONTEÚDO DA ENQUETE -->
+    <div class="resultado oculto" id="resultado">
+        <div class="placar contra-numero oculto" id="numero13">13</div>
+        <div class="placar favor-numero oculto" id="numero22">22</div>
+    </div>
+
+    <div class="pergunta oculto" id="pergunta"></div>
+
+    <div class="botoes oculto" id="botoes">
+        <button id="favor">A FAVOR</button>
+        <button id="contra">CONTRA</button>
+    </div>
+
+    <button id="proximo" class="oculto">Próxima</button>
+
+    <!-- NUMERAÇÃO PEQUENA NO CANTO INFERIOR ESQUERDO -->
+    <div class="num-pagina oculto" id="numPagina"></div>
+
+    <!-- RESULTADO FINAL COM GRÁFICO PIZZA -->
+    <div class="total" id="total">
+        <div class="total-titulo">Resultado Final</div>
+        
+        <div class="chart-container">
+            <canvas id="graficoPizza"></canvas>
+        </div>
+
+        <button id="reiniciar">NOVA ENQUETE</button>
+    </div>
+
+</div>
+
+<script>
+    const perguntas = [
+        {
+            texto: "Endurecimento penal, fortalecimento policial e maior poder de atuação das forças de segurança.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Porte de arma para as pessoas de bem.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Saidinha de presidiários das cadeias.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Fortalecimento do Agronegócio Brasileiro.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Redução dos Impostos.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "MST invadindo e tomando propriedades particulares.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Abordagem de gênero e incentivo a temas relacionados a sexualidade nas escolas.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Classificação de facções criminosas como PCC e CV como Grupos Terroristas.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Redução da maioridade penal, especialmente para crimes graves.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Proteção da vida desde a concepção e oposição à ampliação da legalização do aborto.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Defesa da família tradicional, de valores judaico-cristãos e da moralidade conservadora.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Voto Impresso auditável.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Maior aproximação política com Israel.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Permitir que pessoas \"TRANS\" utilizem o banheiro do sexo biológico oposto ao seu.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Manutenção dos sindicatos, com contribuições obrigatórias para os trabalhadores.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Descriminalização do usuário de drogas e políticas de redução de penas aos traficantes.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "A propriedade privada deve ter função social e maior regulação, podendo haver desapropriação para uso comum.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "A economia deve dar maior ênfase a iniciativa privada e a redução da intervenção estatal.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "O governo deve dar ênfase em controlar gastos e ter responsabilidade fiscal.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Fortalecimento do mercado de trabalho e o equilíbrio fiscal em vez da expansão da assistência social direta (Bolsa Família).",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Maior financiamento e participação do Estado (com dinheiro público) na cultura.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Aproximação política com governos comunistas como China e Rússia.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Indicar para os cargos de Ministros pessoas com qualificação técnica na área e redução dos Ministérios, reduzindo os gastos públicos.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Condenação de 3 anos de prisão a uma mãe de família por escrever com batom em uma estátua uma frase dita por um ministro do STF. OBS: A pena de pichação no Brasil é de 3 a 12 meses.",
+            favor: "13",
+            contra: "22"
+        },
+        {
+            texto: "Ampliação do projeto escola cívico militar.",
+            favor: "22",
+            contra: "13"
+        },
+        {
+            texto: "Ter liberdade de expressar suas opiniões nas redes sociais, desde que não constituam crime.",
+            favor: "22",
+            contra: "13"
+        }
+    ];
+
+    let perguntaAtual = 0;
+    let respostasUsuario = new Array(perguntas.length).fill(null);
+    let meuGrafico = null;
+
+    const capaEl = document.getElementById("capa");
+    const comecarBtn = document.getElementById("comecar");
+    const perguntaEl = document.getElementById("pergunta");
+    const favorBtn = document.getElementById("favor");
+    const contraBtn = document.getElementById("contra");
+    const proximoBtn = document.getElementById("proximo");
+    const reiniciarBtn = document.getElementById("reiniciar");
+    const resultado = document.getElementById("resultado");
+    const botoes = document.getElementById("botoes");
+    const totalEl = document.getElementById("total");
+    const num13 = document.getElementById("numero13");
+    const num22 = document.getElementById("numero22");
+    const numPaginaEl = document.getElementById("numPagina");
+
+    function atualizarExibicaoPergunta() {
+        perguntaEl.textContent = perguntas[perguntaAtual].texto;
+        numPaginaEl.textContent = `${perguntaAtual + 1} / ${perguntas.length}`;
+        
+        const respostaAtual = respostasUsuario[perguntaAtual];
+
+        favorBtn.classList.remove("ativo");
+        contraBtn.classList.remove("ativo");
+
+        if (respostaAtual === "favor") {
+            favorBtn.classList.add("ativo");
+            exibirNumero(perguntas[perguntaAtual].favor);
+        } else if (respostaAtual === "contra") {
+            contraBtn.classList.add("ativo");
+            exibirNumero(perguntas[perguntaAtual].contra);
+        } else {
+            num13.classList.add("oculto");
+            num22.classList.add("oculto");
+        }
+    }
+
+    function exibirNumero(valor) {
+        if (valor === "22") {
+            num22.classList.remove("oculto");
+            num13.classList.add("oculto");
+        } else {
+            num13.classList.remove("oculto");
+            num22.classList.add("oculto");
+        }
+    }
+
+    comecarBtn.addEventListener("click", () => {
+        capaEl.classList.add("oculto");
+        resultado.classList.remove("oculto");
+        perguntaEl.classList.remove("oculto");
+        botoes.classList.remove("oculto");
+        proximoBtn.classList.remove("oculto");
+        numPaginaEl.classList.remove("oculto");
+        atualizarExibicaoPergunta();
+    });
+
+    favorBtn.addEventListener("click", () => {
+        respostasUsuario[perguntaAtual] = "favor";
+        atualizarExibicaoPergunta();
+    });
+
+    contraBtn.addEventListener("click", () => {
+        respostasUsuario[perguntaAtual] = "contra";
+        atualizarExibicaoPergunta();
+    });
+
+    proximoBtn.addEventListener("click", () => {
+        if (!respostasUsuario[perguntaAtual]) return;
+
+        perguntaAtual++;
+
+        if (perguntaAtual < perguntas.length) {
+            atualizarExibicaoPergunta();
+        } else {
+            let total13 = 0;
+            let total22 = 0;
+
+            respostasUsuario.forEach((resp, idx) => {
+                if (resp) {
+                    const numero = perguntas[idx][resp];
+                    if (numero === "13") total13++;
+                    if (numero === "22") total22++;
+                }
+            });
+
+            resultado.classList.add("oculto");
+            perguntaEl.classList.add("oculto");
+            botoes.classList.add("oculto");
+            proximoBtn.classList.add("oculto");
+            numPaginaEl.classList.add("oculto");
+
+            totalEl.style.display = "flex";
+            renderizarGrafico(total13, total22);
+        }
+    });
+
+    function renderizarGrafico(qtd13, qtd22) {
+        const ctx = document.getElementById('graficoPizza').getContext('2d');
+
+        if (meuGrafico) {
+            meuGrafico.destroy();
+        }
+
+        Chart.register(ChartDataLabels);
+
+        const totalVotos = qtd13 + qtd22;
+
+        meuGrafico = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['13', '22'],
+                datasets: [{
+                    data: [qtd13, qtd22],
+                    backgroundColor: ['#ef4444', '#10b981'],
+                    borderColor: ['#dc2626', '#059669'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: 'Inter',
+                                size: 18,
+                                weight: 'bold'
+                            },
+                            color: '#0f172a'
+                        }
+                    },
+                    datalabels: {
+                        color: '#ffffff',
+                        font: {
+                            family: 'Inter',
+                            size: 22,
+                            weight: '800'
+                        },
+                        formatter: (value) => {
+                            if (value === 0 || totalVotos === 0) return '';
+                            const porcentagem = ((value / totalVotos) * 100).toFixed(1);
+                            const formatado = porcentagem.endsWith('.0') ? parseInt(porcentagem) : porcentagem;
+                            return formatado + '%';
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    reiniciarBtn.addEventListener("click", () => {
+        perguntaAtual = 0;
+        respostasUsuario = new Array(perguntas.length).fill(null);
+
+        totalEl.style.display = "none";
+        capaEl.classList.remove("oculto");
+    });
+</script>
+
 </body>
 </html>
